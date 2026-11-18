@@ -38,7 +38,7 @@ SUBREDDITS = (
 SOURCES = ("bluesky", "youtube", "reddit")
 YOUTUBE = "https://www.googleapis.com/youtube/v3/"
 REDDIT = "https://oauth.reddit.com"
-BLUESKY = "https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts"
+BLUESKY = "https://api.bsky.app/xrpc/app.bsky.feed.searchPosts"
 
 
 class ApiError(Exception):
