@@ -1,7 +1,9 @@
-# Source code (not yet implemented)
+# Source code
 
 | Folder | Purpose |
 |---|---|
-| `collect/` | One collector per platform; writes to `data/raw/<platform>/` |
+| `collect/` | Public-source collectors |
 | `preprocess/` | FAA ingestion, cleaning, de-duplication, conversion to the common schema; writes to `data/interim/` |
 | `analysis/` | Sentiment scoring, model-vs-human check, summaries; writes to `data/processed/` and `outputs/` |
+
+[Run the local YouTube historical collector](../docs/youtube_history.md) for video upload years 2016–2026.
