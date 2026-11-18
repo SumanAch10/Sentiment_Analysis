@@ -18,7 +18,25 @@ LAST_YEAR = 2026
 GROUPS = ("general", "multiplanetary", "tourism")
 COMMENT_START = datetime(FIRST_YEAR, 1, 1, tzinfo=UTC)
 COMMENT_END = datetime(LAST_YEAR + 1, 1, 1, tzinfo=UTC)
-OUTPUT_ROOT = Path(__file__).resolve().parents[2] / "data" / "interim" / "youtube_history"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+OUTPUT_ROOT = REPO_ROOT / "data" / "interim" / "youtube_history"
+
+
+def local_settings():
+    """Read the collector's two settings from the repository's local .env."""
+    path = REPO_ROOT / ".env"
+    if not path.is_file():
+        return {}
+    settings = {}
+    for line in path.read_text(encoding="utf-8-sig").splitlines():
+        name, _, value = line.partition("=")
+        name = name.strip()
+        if name in {"YOUTUBE_API_KEY", "COLLECTION_AUTHOR_SALT"}:
+            value = value.strip()
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+                value = value[1:-1]
+            settings[name] = value
+    return settings
 
 
 def utc_timestamp(value):
@@ -166,14 +184,15 @@ def main():
     args.video_years = sorted(set(args.video_years))
     if min(args.search_pages, args.comment_pages) < 1 or not 1 <= args.videos_per_page <= 50:
         parser.error("page caps must be positive and --videos-per-page must be 1–50")
-    salt = os.environ.get("COLLECTION_AUTHOR_SALT")
+    settings = local_settings()
+    salt = os.environ.get("COLLECTION_AUTHOR_SALT") or settings.get("COLLECTION_AUTHOR_SALT")
     if not salt:
-        parser.error("set COLLECTION_AUTHOR_SALT to a persistent secret value")
-    key = os.environ.get("YOUTUBE_API_KEY")
+        parser.error("set COLLECTION_AUTHOR_SALT in the repository .env or shell")
+    key = os.environ.get("YOUTUBE_API_KEY") or settings.get("YOUTUBE_API_KEY")
     if not key and sys.stdin.isatty():
         key = getpass("YouTube Data API key: ").strip()
     if not key:
-        parser.error("set YOUTUBE_API_KEY or run in an interactive terminal")
+        parser.error("set YOUTUBE_API_KEY in the repository .env or shell")
     os.umask(0o077)
     output = OUTPUT_ROOT / datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
     return run(args, key, salt.encode(), output)
