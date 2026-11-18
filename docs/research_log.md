@@ -12,3 +12,4 @@ Dated notes and decisions. Newest at the bottom.
 ## 2026-11-18
 - Ran a pilot for 2026-08-21 through 2026-11-18 UTC. Bluesky returned 625 unique posts across 26 keyword searches (one page per query, newest results first, English search filter). YouTube and Reddit were skipped because credentials were unavailable.
 - The collector uses the official platform APIs and records exact query terms, the UTC window, and per-source status in each run manifest. The pilot data and author salt were kept outside GitHub.
+- Backfilled Bluesky month by month from November 2025 through October 2026 UTC. Used the same 15 terms from the general, multiplanetary, and tourism groups for each month, one page of up to 25 English search results per term, newest first. All 180 searches completed and yielded 3,791 unique posts (287–340 per month). Per-month coverage and query manifests are stored with the private dataset. Search caps and newest-first ordering can skew coverage within a month.
