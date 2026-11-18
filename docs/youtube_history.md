@@ -5,24 +5,16 @@ The collector uses YouTube Data API v3 to search for public videos in each selec
 ## Set up on your computer
 
 1. Get a copy of this repository and open a terminal in its root folder. Use Python 3.11 or newer. The collector uses the Python standard library.
-2. Create a Google Cloud project, enable **YouTube Data API v3**, and create an API key restricted to that API. The script prompts for the key without echoing it. For unattended runs, set the `YOUTUBE_API_KEY` environment variable. [Google's setup guide](https://developers.google.com/youtube/v3/getting-started)
-3. Generate a private salt once with the command below. Save the value in a password manager and reuse it in future batches so the same author gets the same hash. Keep the salt and API key out of Git and the data directory.
+2. Enable **YouTube Data API v3** in your Google Cloud project and create an API key restricted to that API. [Google's setup guide](https://developers.google.com/youtube/v3/getting-started)
+3. Generate a secret salt once with `python -c "import secrets; print(secrets.token_hex(32))"`. Reuse it for future batches so the same author gets the same hash.
+4. Create a file named exactly `.env` in the repository root, next to `.gitignore`. Add these two lines and replace the placeholders with your values.
 
-```bash
-python -c "import secrets; print(secrets.token_hex(32))"
+```dotenv
+YOUTUBE_API_KEY=your_youtube_api_key
+COLLECTION_AUTHOR_SALT=your_generated_salt
 ```
 
-Set the salt in your current terminal session. Use the value you just generated in place of the placeholder.
-
-```bash
-# Bash or Zsh
-export COLLECTION_AUTHOR_SALT='paste-your-saved-salt'
-```
-
-```powershell
-# Windows PowerShell
-$env:COLLECTION_AUTHOR_SALT = 'paste-your-saved-salt'
-```
+The script reads this file automatically. Git already ignores it. Shell environment values take precedence if set.
 
 ## Run the collection
 
