@@ -61,6 +61,10 @@ sentiment_analysis/
 └── outputs/{figures,tables}/  results
 ```
 
+## Analyze YouTube comments
+
+Use the [YouTube analysis guide](docs/youtube_analysis.md) to validate the existing archive, generate a private labeling sample, and run the sentiment pilot locally. The pipeline reads the collected files and groups results by comment posting month.
+
 ## Agent handoff
 
 The next task is to prepare and validate the existing YouTube and Bluesky samples for descriptive sentiment and trend analysis. Start with the two archives in the project owner's private Google Drive. Use the owner's supplied files or authorized Drive access.
