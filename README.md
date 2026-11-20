@@ -11,12 +11,12 @@ This is a first, descriptive step. Nothing here is tied to a research question y
 | Source | Status |
 |---|---|
 | Reddit | Collection pending research data access |
-| YouTube comments | Local collector ready for 2016–2026. Live collection pending. |
+| YouTube comments | Collected 209,096 unique top-level comments from videos uploaded in 2016–2026. |
 | Bluesky | Collected 10,160 unique posts across 34 months, January 2024–October 2026 UTC. |
 | X / Twitter | Optional (API cost) |
 | FAA 2021 public comments on SpaceX Starship/Super Heavy, Boca Chica (~17,000) | Previously obtained separately |
 
-Bluesky is the only social platform collected through this project so far. The 10,160 posts come from monthly keyword searches and are stored outside GitHub. January and February 2024 provide context before and during the transition to public sign-ups. The proposed main Bluesky trend starts in March 2024. See the [research log](docs/research_log.md) for sampling details.
+The YouTube and Bluesky datasets are available as private Google Drive archives. YouTube comments were collected from relevance-ranked video searches and capped, newest-first comment pages. Bluesky posts were collected from capped monthly keyword searches. See the [YouTube collection guide](docs/youtube_history.md) and [research log](docs/research_log.md) for sampling details.
 
 ## Run YouTube collection locally
 
@@ -61,6 +61,19 @@ sentiment_analysis/
 └── outputs/{figures,tables}/  results
 ```
 
-## Status
+## Agent handoff
 
-Historical Bluesky collection is complete for the listed window. The YouTube collector is ready for its first local run, and Reddit collection is pending access. The RoBERTa demo uses sample text. Sentiment scoring of the collected dataset is pending.
+The next task is to prepare and validate the existing YouTube and Bluesky samples for descriptive sentiment and trend analysis. Start with the two archives in the project owner's private Google Drive. Use the owner's supplied files or authorized Drive access.
+
+| Archive | Data file | Coverage files |
+|---|---|---|
+| `youtube_comments_2016_2026.zip` | `comments_2016_2026.jsonl` | `collection_coverage.json` |
+| `bluesky_posts_2024_2026.zip` | `bluesky_history.jsonl` | `monthly_coverage.csv`, `yearly_coverage.csv` |
+
+1. **Verify inputs.** Read [the schema](docs/data_schema.md) and [data handling rules](docs/ethics.md). Extract to Git-ignored storage. Check valid JSONL, unique `record_id` values within each platform, UTC timestamps, nonempty text, and counts against the coverage files (209,096 YouTube rows and 10,160 Bluesky rows). Report any discrepancies. Preserve the original archives.
+2. **Prepare the sample.** Flag off-topic records, non-English text, spam, and duplicate text using documented rules. YouTube search terms matched videos, so the comments still need relevance screening. Keep counts of included and excluded rows by platform and month. Pilot the screening before applying it at scale.
+3. **Validate sentiment.** Draw a reproducible sample of about 300 records across platforms, years, and topics for human review. Label relevance separately from sentiment and include examples where the tone of a post differs from its attitude toward space travel. Compare VADER and CardiffNLP Twitter-RoBERTa with human labels. Report accuracy and per-class precision and recall. Use the [sentiment plan](docs/sentiment_plan.md) and log model versions and labeling decisions.
+4. **Analyze the trend.** Group by the UTC `created_utc` field. YouTube's `video_published_utc` is the video upload date and can be used to check coverage by upload cohort. Show monthly positive, neutral, and negative shares with denominators for each platform. Treat YouTube's 2026 data as partial. Use March 2024 onward for the main Bluesky trend and retain January and February 2024 as context. For comparisons across years, use matched calendar months. Describe the results as trends in the collected samples.
+5. **Save reproducible outputs.** Put row-level scores in Git-ignored `data/processed/`. Save aggregate tables and figures in `outputs/tables/` and `outputs/figures/`. Record the commands, exclusions, and coverage limits in the [research log](docs/research_log.md). Keep comment text, identifiers, private Drive links, and credentials out of GitHub.
+
+Begin with an input coverage report and a pilot screening and annotation plan. Bring decisions that affect the results to Suman for review before full scoring. Reddit collection is pending research access, and the FAA data was obtained separately. The RoBERTa demo currently uses sample text.
