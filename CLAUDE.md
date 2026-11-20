@@ -6,7 +6,7 @@ The task is **descriptive sentiment analysis only**. Do not add research questio
 
 ## Current phase
 
-**Planning.** Do not write code until Suman says to start. Then implement **one step at a time** and stop for review after each.
+**Data preparation and validation.** YouTube and Bluesky collection for the current samples is complete. Follow the [agent handoff in the README](README.md#agent-handoff) for the current workflow. When Suman asks you to implement it, work one step at a time and stop for review after each.
 
 ## Steps
 
