@@ -67,17 +67,31 @@ Use the [YouTube analysis guide](docs/youtube_analysis.md) to validate the exist
 
 ## Agent handoff
 
-The next task is to prepare and validate the existing YouTube and Bluesky samples for descriptive sentiment and trend analysis. Start with the two archives in the project owner's private Google Drive. Use the owner's supplied files or authorized Drive access.
+**Assignment.** Analyze the existing YouTube comments to describe how sentiment about space travel changed from 2016 through 2026. Use the [existing analysis pipeline](docs/youtube_analysis.md). This assignment is limited to YouTube.
 
-| Archive | Data file | Coverage files |
-|---|---|---|
-| `youtube_comments_2016_2026.zip` | `comments_2016_2026.jsonl` | `collection_coverage.json` |
-| `bluesky_posts_2024_2026.zip` | `bluesky_history.jsonl` | `monthly_coverage.csv`, `yearly_coverage.csv` |
+### Inputs
 
-1. **Verify inputs.** Read [the schema](docs/data_schema.md) and [data handling rules](docs/ethics.md). Extract to Git-ignored storage. Check valid JSONL, unique `record_id` values within each platform, UTC timestamps, nonempty text, and counts against the coverage files (209,096 YouTube rows and 10,160 Bluesky rows). Report any discrepancies. Preserve the original archives.
-2. **Prepare the sample.** Flag off-topic records, non-English text, spam, and duplicate text using documented rules. YouTube search terms matched videos, so the comments still need relevance screening. Keep counts of included and excluded rows by platform and month. Pilot the screening before applying it at scale.
-3. **Validate sentiment.** Draw a reproducible sample of about 300 records across platforms, years, and topics for human review. Label relevance separately from sentiment and include examples where the tone of a post differs from its attitude toward space travel. Compare VADER and CardiffNLP Twitter-RoBERTa with human labels. Report accuracy and per-class precision and recall. Use the [sentiment plan](docs/sentiment_plan.md) and log model versions and labeling decisions.
-4. **Analyze the trend.** Group by the UTC `created_utc` field. YouTube's `video_published_utc` is the video upload date and can be used to check coverage by upload cohort. Show monthly positive, neutral, and negative shares with denominators for each platform. Treat YouTube's 2026 data as partial. Use March 2024 onward for the main Bluesky trend and retain January and February 2024 as context. For comparisons across years, use matched calendar months. Describe the results as trends in the collected samples.
-5. **Save reproducible outputs.** Put row-level scores in Git-ignored `data/processed/`. Save aggregate tables and figures in `outputs/tables/` and `outputs/figures/`. Record the commands, exclusions, and coverage limits in the [research log](docs/research_log.md). Keep comment text, identifiers, private Drive links, and credentials out of GitHub.
+Use `youtube_comments_2016_2026.zip` from Suman's private Google Drive. Extract `comments_2016_2026.jsonl` and `collection_coverage.json` to Git-ignored `data/interim/youtube_history/`. Expect **209,096 unique top-level comments**. Read the [schema](docs/data_schema.md), [ethics rules](docs/ethics.md), and [sentiment plan](docs/sentiment_plan.md).
 
-Begin with an input coverage report and a pilot screening and annotation plan. Bring decisions that affect the results to Suman for review before full scoring. Reddit collection is pending research access, and the FAA data was obtained separately. The RoBERTa demo currently uses sample text.
+### Run the pilot
+
+Use Python 3.11 or newer and a fresh output directory. The existing pipeline runs locally.
+
+```bash
+python -m pip install vaderSentiment==3.3.2 langdetect==1.0.9
+python src/analysis/analyze_youtube.py \
+  data/interim/youtube_history/comments_2016_2026.jsonl \
+  --coverage data/interim/youtube_history/collection_coverage.json \
+  --output data/processed/youtube_pilot
+```
+
+1. **Check coverage.** Verify the record count, UTC timestamps, IDs, and monthly counts. Review exclusions and explain any discrepancies. Use `created_utc` as the comment date. Use `video_published_utc` only to assess coverage by video upload cohort.
+2. **Review relevance.** The collector matched keywords against videos. Review the stratified annotation sample, including comments without direct phrase matches, for relevance to space travel. Check the English filter on short, multilingual, and ambiguous comments. Report how many records each filter retains by month.
+3. **Validate the models.** Run **VADER 3.3.2** as the baseline. Run **CardiffNLP Twitter-RoBERTa** on the same pilot using the pinned model revision and a separate output directory, as described in the analysis guide. Ask Suman for human labels or coordinate human review. Keep relevance separate from positive, neutral, and negative sentiment toward space travel. Compare models on the same human-labeled relevant records and report sample size, accuracy, per-class precision and recall, and examples of disagreement in paraphrase. If labels are unavailable, report that validation is pending.
+4. **Review the pilot before full scoring.** Give Suman the coverage report, proposed screening rule, and any available validation results. The existing `--score-all` mode scores English comments that match the phrase filter. Treat that as a narrower subset unless the review supports applying the rule more broadly.
+
+### Full-run outputs after review
+
+- Produce a monthly CSV and trend chart with positive, neutral, and negative shares and the number of comments scored per month. Use 2016–2025 for complete-year comparisons and show 2026 as partial. Use matched calendar months for any comparison that includes 2026.
+- Describe the findings as sentiment in the sampled YouTube comments. Document keyword-based video selection, newest-first comment caps, and screening exclusions.
+- Save row-level scores and annotations in Git-ignored storage. Save aggregate CSVs and figures under `outputs/tables/` and `outputs/figures/`. Record the commands, model versions, sample seed, and decisions in the [research log](docs/research_log.md). Keep credentials, private Drive links, and comment text out of GitHub.
